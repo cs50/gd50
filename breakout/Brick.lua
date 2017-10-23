@@ -17,10 +17,17 @@
 Brick = Class{}
 
 function Brick:init(x, y)
+    -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
+    
     self.x = x
     self.y = y
+    self.width = 32
+    self.height = 16
+    
+    -- used to determine whether this brick should be rendered
+    self.inPlay = true
 end
 
 function Brick:update(dt)
@@ -28,6 +35,8 @@ function Brick:update(dt)
 end
 
 function Brick:render()
-    love.graphics.draw(gTextures['main'], gFrames['bricks'][1 * self.color + self.tier],
-        self.x, self.y)
+    if self.inPlay then
+        love.graphics.draw(gTextures['main'], gFrames['bricks'][1 * self.color + self.tier],
+            self.x, self.y)
+    end
 end

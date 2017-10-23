@@ -27,43 +27,27 @@ function ServeState:enter(skin)
 end
 
 function ServeState:update(dt)
-    if love.keyboard.isDown('left') then
-        player.dx = -PADDLE_SPEED
-    elseif love.keyboard.isDown('right') then
-        player.dx = PADDLE_SPEED
-    else
-        player.dx = 0
-    end 
+    playerMove() 
 
+    -- have the ball track the player
     player:update(dt)
     ball.x = player.x + (player.width / 2) - 4
     ball.y = player.y - 8
+
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        gStateMachine:change('play')
+    end
 end
 
 function ServeState:render()
     player:render()
     ball:render()
 
-    for k, brick in pairs(bricks) do
-        brick:render()
-    end
+    renderBricks()
+    renderHealth()
+    renderScore()
 
-    local healthX = VIRTUAL_WIDTH - 100
-
-    -- render health
-    for i = 1, health do
-        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][1], healthX, 4)
-        healthX = healthX + 11
-    end
-
-    -- render missing health
-    for i = 1, 3 - health do
-        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][2], healthX, 4)
-        healthX = healthX + 11
-    end
-
-    -- render score
-    love.graphics.setFont(smallFont)
-    love.graphics.print('Score:', VIRTUAL_WIDTH - 60, 5)
-    love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
+    love.graphics.setFont(mediumFont)
+    love.graphics.printf('Press Enter to serve!', 0, VIRTUAL_HEIGHT / 2,
+        VIRTUAL_WIDTH, 'center')
 end

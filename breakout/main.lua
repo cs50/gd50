@@ -123,12 +123,15 @@ function love.load()
     -- set up our sound effects; later, we can just index this table and
     -- call each entry's `play` method
     gSounds = {
-        ['paddle_hit'] = love.audio.newSource('sounds/paddle_hit.wav'),
+        ['paddle-hit'] = love.audio.newSource('sounds/paddle_hit.wav'),
         ['score'] = love.audio.newSource('sounds/score.wav'),
-        ['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav'),
+        ['wall-hit'] = love.audio.newSource('sounds/wall_hit.wav'),
         ['confirm'] = love.audio.newSource('sounds/confirm.wav'),
         ['select'] = love.audio.newSource('sounds/select.wav'),
-        ['no-select'] = love.audio.newSource('sounds/no-select.wav')
+        ['no-select'] = love.audio.newSource('sounds/no-select.wav'),
+        ['brick-hit-1'] = love.audio.newSource('sounds/brick-hit-1.wav'),
+        ['brick-hit-2'] = love.audio.newSource('sounds/brick-hit-2.wav'),
+        ['hurt'] = love.audio.newSource('sounds/hurt.wav')
     }
 
     -- initialize our player paddles; make them global so that they can be
@@ -265,6 +268,60 @@ function love.draw()
     displayFPS()
     
     push:apply('end')
+end
+
+--[[
+    Simple loop over our bricks table to render all bricks in the scene.
+]]
+function renderBricks()
+    for k, brick in pairs(bricks) do
+        brick:render()
+    end
+end
+
+--[[
+    Renders hearts based on how much health the player has. First renders
+    full hearts, then empty hearts for however much health we're missing.
+]]
+function renderHealth()
+    -- start of our health rendering
+    local healthX = VIRTUAL_WIDTH - 100
+    
+    -- render health left
+    for i = 1, health do
+        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][1], healthX, 4)
+        healthX = healthX + 11
+    end
+
+    -- render missing health
+    for i = 1, 3 - health do
+        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][2], healthX, 4)
+        healthX = healthX + 11
+    end
+end
+
+--[[
+    Simple checking for input for the paddle, adjusting velocity for left
+    and right.
+]]
+function playerMove()
+    if love.keyboard.isDown('left') then
+        player.dx = -PADDLE_SPEED
+    elseif love.keyboard.isDown('right') then
+        player.dx = PADDLE_SPEED
+    else
+        player.dx = 0
+    end
+end
+
+--[[
+    Simply renders the player's score at the top right, with left-side padding
+    for the score number.
+]]
+function renderScore()
+    love.graphics.setFont(smallFont)
+    love.graphics.print('Score:', VIRTUAL_WIDTH - 60, 5)
+    love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
 end
 
 --[[
