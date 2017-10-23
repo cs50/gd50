@@ -164,6 +164,11 @@ function love.update(dt)
             ball.dx = -ball.dx * 1.03
             ball.x = player1.x + 5
 
+            -- formula for adjusting the angle of the ball when hit by the
+            -- paddle; if the ball hits the paddle above its midpoint, then
+            -- the dy should be negative and scaled by how far above the
+            -- midpoint it hits; the opposite is true for below the midpoint,
+            -- only the dy should be positive
             if ball.y < player1.y + player1.height / 2 then
                 ball.dy = -math.random(50, 100) * (player1.y + 
                     (player1.height / 2)) / ball.y
@@ -218,10 +223,8 @@ function love.update(dt)
                 gameState = 'done'
             else
                 gameState = 'serve'
-                ball.x = VIRTUAL_WIDTH / 2 - 2
-                ball.y = VIRTUAL_HEIGHT / 2 - 2
-                ball.dx = 0
-                ball.dy = 0
+                -- places the ball in the middle of the screen, no velocity
+                ball:reset()
             end
         end
 
@@ -235,10 +238,7 @@ function love.update(dt)
                 gameState = 'done'
             else
                 gameState = 'serve'
-                ball.x = VIRTUAL_WIDTH / 2 - 2
-                ball.y = VIRTUAL_HEIGHT / 2 - 2
-                ball.dx = 0
-                ball.dy = 0
+                ball:reset()
             end
         end
 
@@ -248,10 +248,7 @@ function love.update(dt)
         if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
             gameState = 'serve'
 
-            ball.x = VIRTUAL_WIDTH / 2 - 2
-            ball.y = VIRTUAL_HEIGHT / 2 - 2
-            ball.dx = 0
-            ball.dy = 0
+            ball:reset()
 
             -- reset scores to 0
             player1Score = 0
