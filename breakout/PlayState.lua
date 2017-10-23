@@ -15,7 +15,7 @@
 PlayState = Class{__includes = BaseState}
 
 function PlayState:init()
-    ball.dx = math.random(-100, 100)
+    ball.dx = math.random(-200, 200)
     ball.dy = math.random(-50, -80)
 end
 
@@ -34,9 +34,13 @@ function PlayState:update(dt)
         ball.dy = -ball.dy
 
         if ball.x < player.x + (player.width / 2) then
-            ball.dx = -math.random(30, 50 + 10 * player.width / 2 - (ball.x + 8 - player.x))
+            if player.dx < 0 then
+                ball.dx = -math.random(30, 50 + 10 * player.width / 2 - (ball.x + 8 - player.x))
+            end
         else
-            ball.dx = math.random(30, 50 + 10 * (ball.x - player.x - player.width / 2))
+            if player.dx > 0 then
+                ball.dx = math.random(30, 50 + 10 * (ball.x - player.x - player.width / 2))
+            end
         end
         gSounds['paddle-hit']:play()
     end
@@ -58,6 +62,9 @@ function PlayState:update(dt)
             if ball.y < brick.y or ball.y + 8 > brick.y + brick.height then
                 ball.dy = -ball.dy
             end
+
+            -- slightly scale the y velocity to speed up the game
+            ball.dy = ball.dy * 1.02
         end
     end
 
