@@ -16,10 +16,18 @@
 
 Brick = Class{}
 
-function Brick:init()
-
+function Brick:init(x, y)
+    self.tier = 0
+    self.color = 1
+    self.x = x
+    self.y = y
 end
 
 function Brick:update(dt)
 
+end
+
+function Brick:render()
+    love.graphics.draw(gTextures['main'], gFrames['bricks'][1 * self.color + self.tier],
+        self.x, self.y)
 end

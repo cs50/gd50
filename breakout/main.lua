@@ -42,6 +42,10 @@ require 'Paddle'
 -- but which will mechanically function very differently
 require 'Ball'
 
+-- our Brick class, which the Ball must collide with to clear the map and
+-- score points
+require 'Brick'
+
 -- a basic StateMachine class which will allow us to transition to and from
 -- game states smoothly and avoid monolithic code in one file
 require 'StateMachine'
@@ -94,7 +98,8 @@ function love.load()
     gTextures = {
         ['background'] = love.graphics.newImage('background.png'),
         ['main'] = love.graphics.newImage('breakout.png'),
-        ['arrows'] = love.graphics.newImage('arrows.png')
+        ['arrows'] = love.graphics.newImage('arrows.png'),
+        ['hearts'] = love.graphics.newImage('hearts.png')
     }
 
     -- Quads we will generate for all of our textures; Quads allow us
@@ -102,7 +107,9 @@ function love.load()
     gFrames = {
         ['arrows'] = GenerateQuads(gTextures['arrows'], 24, 24),
         ['bricks'] = GenerateQuadsBricks(gTextures['main']),
-        ['paddles'] = GenerateQuadsPaddles(gTextures['main'])
+        ['paddles'] = GenerateQuadsPaddles(gTextures['main']),
+        ['balls'] = GenerateQuadsBalls(gTextures['main']),
+        ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9)
     }
     
     -- initialize our virtual resolution, which will be rendered within our
@@ -139,6 +146,16 @@ function love.load()
 
     -- initialize health (number of hearts, 3 being full and 0 being dead)
     health = 3
+
+    -- initialize bricks for the first level
+    bricks = {}
+
+    -- lay out bricks such that they touch each other and fill the space
+    for y = 1, 5 do
+        for x = 1, 13 do
+            table.insert(bricks, Brick(x * 32 - 24, y * 16))
+        end
+    end 
 
     -- the state machine we'll be using to transition between various states
     -- in our game instead of clumping them together in our update and draw
@@ -257,5 +274,5 @@ function displayFPS()
     -- simple FPS display across all states
     love.graphics.setFont(smallFont)
     love.graphics.setColor(0, 255, 0, 255)
-    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 5, 5)
 end
