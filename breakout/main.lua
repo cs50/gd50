@@ -61,6 +61,9 @@ require 'PlayState'
 require 'VictoryState'
 require 'GameOverState'
 
+-- the class we'll use to generate the map for each level
+require 'LevelMaker'
+
 -- used to import our function for splitting textures into Quads
 require 'Util'
 
@@ -131,7 +134,8 @@ function love.load()
         ['no-select'] = love.audio.newSource('sounds/no-select.wav'),
         ['brick-hit-1'] = love.audio.newSource('sounds/brick-hit-1.wav'),
         ['brick-hit-2'] = love.audio.newSource('sounds/brick-hit-2.wav'),
-        ['hurt'] = love.audio.newSource('sounds/hurt.wav')
+        ['hurt'] = love.audio.newSource('sounds/hurt.wav'),
+        ['victory'] = love.audio.newSource('sounds/victory.wav')
     }
 
     -- initialize our player paddles; make them global so that they can be
@@ -139,7 +143,7 @@ function love.load()
     player = Paddle()
     
     -- place a ball in the middle of the screen
-    ball = Ball()
+    ball = Ball(1)
 
     -- initialize score variable
     score = 0
@@ -151,14 +155,7 @@ function love.load()
     health = 3
 
     -- initialize bricks for the first level
-    bricks = {}
-
-    -- lay out bricks such that they touch each other and fill the space
-    for y = 1, 5 do
-        for x = 1, 13 do
-            table.insert(bricks, Brick(x * 32 - 24, y * 16))
-        end
-    end 
+    bricks = LevelMaker:createMap(level)
 
     -- the state machine we'll be using to transition between various states
     -- in our game instead of clumping them together in our update and draw

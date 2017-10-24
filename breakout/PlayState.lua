@@ -2,21 +2,24 @@
     GD50 2018
     Breakout Remake
 
-    -- StartState Class --
+    -- PlayState Class --
 
     Author: Colton Ogden
     cogden@cs50.harvard.edu
 
-    Represents the state the game is in when we've just started; should
-    simply display "Breakout" in large text, as well as a message to press
-    Enter to begin.
+    Represents the state of the game in which we are actively playing;
+    player should control the paddle, with the ball actively bouncing between
+    the bricks, walls, and the paddle. If the ball goes below the paddle, then
+    the player should lose one point of health and be taken either to the Game
+    Over screen if at 0 health or the Serve screen otherwise.
 ]]
 
 PlayState = Class{__includes = BaseState}
 
 function PlayState:init()
     ball.dx = math.random(-200, 200)
-    ball.dy = math.random(-50, -80)
+    -- give a random y velocity, but add an amount (capped) based on the level
+    ball.dy = math.random(-50, -60) - math.min(100, level * 5)
 end
 
 function PlayState:update(dt)
@@ -29,17 +32,26 @@ function PlayState:update(dt)
 
     -- bounce the ball back up if we collide with the paddle
     if ball:collides(player) then
-        -- tweak angle of bounce based on where it hits the paddle
+        -- raise ball above paddle in case it goes below it, then reverse dy
         ball.y = player.y - 8
         ball.dy = -ball.dy
 
-        if ball.x < player.x + (player.width / 2) then
+        --
+        -- tweak angle of bounce based on where it hits the paddle
+        --
+
+        -- if we hit the paddle on its left side...
+        if ball.x < player.x + (player.width / 2) and player.dx < 0 then
+            -- if the player is moving left...
             if player.dx < 0 then
-                ball.dx = -math.random(30, 50 + 10 * player.width / 2 - (ball.x + 8 - player.x))
+                ball.dx = -math.random(30, 50 + 
+                    10 * player.width / 2 - (ball.x + 8 - player.x))
             end
         else
+            -- if the player is moving right...
             if player.dx > 0 then
-                ball.dx = math.random(30, 50 + 10 * (ball.x - player.x - player.width / 2))
+                ball.dx = math.random(30, 50 + 
+                    10 * (ball.x - player.x - player.width / 2))
             end
         end
         gSounds['paddle-hit']:play()
@@ -48,18 +60,20 @@ function PlayState:update(dt)
     -- eliminate brick if we collide with it
     for k, brick in pairs(bricks) do
         if brick.inPlay and ball:collides(brick) then
-            brick.inPlay = false
-            gSounds['brick-hit-1']:play()
-            gSounds['brick-hit-2']:play()
-            score = score + brick.tier * 10 + brick.color * 5
+            brick:hit()
+            score = score + (brick.tier + brick.color) * 25
+
+            if self:checkVictory() then
+                gStateMachine:change('victory')
+            end
 
             -- change ball's trajectory based on how we hit the brick
-            if ball.x < brick.x or ball.x + 8 > brick.x + brick.width then
+            if ball.x < brick.x or ball.x + 7 >= brick.x + brick.width then
                 -- we hit from the left, so reverse dx
                 ball.dx = -ball.dx
             end
 
-            if ball.y < brick.y or ball.y + 8 > brick.y + brick.height then
+            if ball.y < brick.y or ball.y + 7 > brick.y + brick.height then
                 ball.dy = -ball.dy
             end
 
@@ -88,4 +102,19 @@ function PlayState:render()
     renderBricks()
     renderScore()
     renderHealth()
+
+    -- current level text
+    love.graphics.setFont(smallFont)
+    love.graphics.printf('Level ' .. tostring(level),
+        0, 4, VIRTUAL_WIDTH, 'center')
+end
+
+function PlayState:checkVictory()
+    for k, brick in pairs(bricks) do
+        if brick.inPlay then
+            return false
+        end 
+    end
+
+    return true
 end
