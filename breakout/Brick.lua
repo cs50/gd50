@@ -40,7 +40,7 @@ function Brick:hit()
     if self.tier > 0 then
         if self.color == 1 then
             self.tier = self.tier - 1
-            self.color = 4
+            self.color = 5
         else
             self.color = self.color - 1
         end

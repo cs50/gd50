@@ -16,7 +16,25 @@ GameOverState = Class{__includes = BaseState}
 
 function GameOverState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('paddle-select')
+        -- see if score is higher than any in the high scores table
+        local highScore = false
+        for i = 1, 10 do
+            if score > highScores[i].score then
+                highScoreIndex = i
+                highScore = true
+            end
+        end
+
+        if highScore then
+            gSounds['high-score']:play() 
+            gStateMachine:change('enter-high-score') 
+        else 
+            gStateMachine:change('paddle-select') 
+        end
+    end
+
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
     end
 end
 

@@ -64,6 +64,8 @@ require 'ServeState'
 require 'PlayState'
 require 'VictoryState'
 require 'GameOverState'
+require 'HighScoreState'
+require 'EnterHighScoreState'
 
 -- the class we'll use to generate the map for each level
 require 'LevelMaker'
@@ -140,6 +142,8 @@ function love.load()
         ['brick-hit-2'] = love.audio.newSource('sounds/brick-hit-2.wav'),
         ['hurt'] = love.audio.newSource('sounds/hurt.wav'),
         ['victory'] = love.audio.newSource('sounds/victory.wav'),
+        ['recover'] = love.audio.newSource('sounds/recover.wav'),
+        ['high-score'] = love.audio.newSource('sounds/high_score.wav'),
 
         ['music'] = love.audio.newSource('sounds/music.wav')
     }
@@ -163,6 +167,12 @@ function love.load()
     -- initialize bricks for the first level
     bricks = LevelMaker:createMap(level)
 
+    -- high scores we have saved to a file
+    highScores = loadHighScores()
+
+    -- points we need to recover a point of health
+    recoverPoints = 5000
+
     -- the state machine we'll be using to transition between various states
     -- in our game instead of clumping them together in our update and draw
     -- methods
@@ -180,7 +190,9 @@ function love.load()
         ['serve'] = function() return ServeState() end,
         ['play'] = function() return PlayState() end,
         ['victory'] = function() return VictoryState() end,
-        ['game-over'] = function() return GameOverState() end
+        ['game-over'] = function() return GameOverState() end,
+        ['high-scores'] = function() return HighScoreState() end,
+        ['enter-high-score'] = function() return EnterHighScoreState() end
     }
     gStateMachine:change('start')
 
@@ -227,12 +239,6 @@ end
     things to happen right away, just once, like when we want to quit.
 ]]
 function love.keypressed(key)
-    -- `key` will be whatever key this callback detected as pressed
-    if key == 'escape' then
-        -- the function LÖVE2D uses to quit the application
-        love.event.quit()
-    end 
-
     -- add to our table of keys pressed this frame
     love.keyboard.keysPressed[key] = true
 end
@@ -275,6 +281,45 @@ function love.draw()
     displayFPS()
     
     push:apply('end')
+end
+
+--[[
+    Loads high scores from a text file, saved locally.
+]]
+function loadHighScores()
+    local file = love.filesystem.newFile('scores.txt')
+
+    -- flag for whether we're reading a name or not
+    local name = true
+    local currentName = nil
+    local counter = 1
+
+    -- initialize scores table with at least 10 blank entries
+    local scores = {}
+    for i = 1, 10 do
+        -- blank table; each will hold a name and a score
+        scores[i] = {
+            name = nil,
+            score = nil
+        }
+    end
+
+    -- iterate over each line in the file, filling in names and scores
+    for line in file:lines() do
+        if name then
+            scores[counter].name = string.sub(line, 1, 3)
+        else
+            scores[counter].score = tonumber(line)
+            counter = counter + 1
+        end
+
+        -- flip the name flag
+        name = not name
+    end
+
+    file:close()
+
+    return scores
 end
 
 --[[

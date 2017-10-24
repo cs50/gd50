@@ -37,6 +37,10 @@ function ServeState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
         gStateMachine:change('play')
     end
+
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
+    end
 end
 
 function ServeState:render()

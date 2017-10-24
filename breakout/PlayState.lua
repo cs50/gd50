@@ -60,8 +60,20 @@ function PlayState:update(dt)
     -- eliminate brick if we collide with it
     for k, brick in pairs(bricks) do
         if brick.inPlay and ball:collides(brick) then
-            brick:hit()
             score = score + (brick.tier + brick.color) * 25
+            brick:hit()
+
+            -- if we have enough points, recover a point of health
+            if score > recoverPoints then
+                -- can't go above 3 health
+                health = math.min(3, health + 1)
+
+                -- multiply recover points by 2, but no more than 100000
+                recoverPoints = math.min(100000, recoverPoints * 2)
+
+                -- play recover sound effect
+                gSounds['recover']:play()
+            end
 
             if self:checkVictory() then
                 gStateMachine:change('victory')
@@ -92,6 +104,10 @@ function PlayState:update(dt)
         else
             gStateMachine:change('serve', player.skin)
         end
+    end
+
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
     end
 end
 

@@ -40,7 +40,15 @@ function PaddleSelectState:update(dt)
     -- select paddle and move on to the serve state, passing in the selection
     if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') then
         gSounds['confirm']:play()
+
+        -- re-init recover points for the new game
+        recoverPoints = 5000
+
         gStateMachine:change('serve', self.currentPaddle)
+    end
+
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
     end
 end
 
