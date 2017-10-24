@@ -18,6 +18,10 @@
 
     Credit for graphics (amazing work!):
     https://opengameart.org/users/buch
+
+    Credit for music (great loop):
+    http://freesound.org/people/joshuaempyre/sounds/251461/
+    http://www.soundcloud.com/empyreanma
 ]]
 
 -- push is a library that will allow us to draw our game at a virtual
@@ -135,7 +139,9 @@ function love.load()
         ['brick-hit-1'] = love.audio.newSource('sounds/brick-hit-1.wav'),
         ['brick-hit-2'] = love.audio.newSource('sounds/brick-hit-2.wav'),
         ['hurt'] = love.audio.newSource('sounds/hurt.wav'),
-        ['victory'] = love.audio.newSource('sounds/victory.wav')
+        ['victory'] = love.audio.newSource('sounds/victory.wav'),
+
+        ['music'] = love.audio.newSource('sounds/music.wav')
     }
 
     -- initialize our player paddles; make them global so that they can be
@@ -177,6 +183,10 @@ function love.load()
         ['game-over'] = function() return GameOverState() end
     }
     gStateMachine:change('start')
+
+    -- play our music outside of all states and set it to looping
+    gSounds['music']:play()
+    gSounds['music']:setLooping(true)
 
     -- a table we'll use to keep track of which keys have been pressed this
     -- frame, to get around the fact that LÖVE's default callback won't let us
