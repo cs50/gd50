@@ -20,9 +20,31 @@ function PlayState:init()
     ball.dx = math.random(-200, 200)
     -- give a random y velocity, but add an amount (capped) based on the level
     ball.dy = math.random(-50, -60) - math.min(100, level * 5)
+
+    -- keep track of whether the game is paused
+    self.paused = false
 end
 
 function PlayState:update(dt)
+    if self.paused then
+        if love.keyboard.wasPressed('escape') then
+            love.event.quit()
+        end
+
+        if love.keyboard.wasPressed('space') then
+            self.paused = false
+            gSounds['music']:resume()
+            gSounds['pause']:play()
+        else
+            return
+        end
+    elseif love.keyboard.wasPressed('space') then
+        self.paused = true
+        gSounds['music']:pause()
+        gSounds['pause']:play()
+        return
+    end
+
     -- player input
     playerMove(dt)
 
@@ -147,6 +169,12 @@ function PlayState:render()
     love.graphics.setFont(smallFont)
     love.graphics.printf('Level ' .. tostring(level),
         0, 4, VIRTUAL_WIDTH, 'center')
+
+    -- pause text, if paused
+    if self.paused then
+        love.graphics.setFont(largeFont)
+        love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
+    end
 end
 
 function PlayState:checkVictory()

@@ -144,6 +144,7 @@ function love.load()
         ['victory'] = love.audio.newSource('sounds/victory.wav'),
         ['recover'] = love.audio.newSource('sounds/recover.wav'),
         ['high-score'] = love.audio.newSource('sounds/high_score.wav'),
+        ['pause'] = love.audio.newSource('sounds/pause.wav'),
 
         ['music'] = love.audio.newSource('sounds/music.wav')
     }
