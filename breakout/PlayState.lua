@@ -82,7 +82,7 @@ function PlayState:update(dt)
     -- eliminate brick if we collide with it
     for k, brick in pairs(bricks) do
         if brick.inPlay and ball:collides(brick) then
-            score = score + (brick.tier + brick.color) * 25
+            score = score + (brick.tier * 200 + brick.color * 25)
             brick:hit()
 
             -- if we have enough points, recover a point of health
