@@ -43,14 +43,14 @@ function EnterHighScoreState:update(dt)
         highScores[highScoreIndex].score = score
 
         -- write scores to file
-        local file = love.filesystem.newFile('scores.txt')
-        file:open('w')
+        local scoresStr = ''
+
         for i = 1, 10 do
-            file:write(highScores[i].name .. '\n')
-            file:write(highScores[i].score)
-            file:write('\n')
+            scoresStr = scoresStr .. highScores[i].name .. '\n'
+            scoresStr = scoresStr .. tostring(highScores[i].score) .. '\n'
         end
-        file:close()
+
+        love.filesystem.write('breakout.lst', scoresStr)
 
         gStateMachine:change('high-scores')
     end

@@ -287,7 +287,17 @@ end
     Loads high scores from a text file, saved locally.
 ]]
 function loadHighScores()
-    local file = love.filesystem.newFile('scores.txt')
+    love.filesystem.setIdentity('breakout')
+
+    if not love.filesystem.exists('breakout.lst') then
+        local defaultScores = ''
+        for i = 10, 1, -1 do
+            defaultScores = defaultScores .. 'CTO\n'
+            defaultScores = defaultScores .. tostring(i * 1000) .. '\n'
+        end
+
+        love.filesystem.write('breakout.lst', defaultScores)
+    end
 
     -- flag for whether we're reading a name or not
     local name = true
@@ -305,7 +315,7 @@ function loadHighScores()
     end
 
     -- iterate over each line in the file, filling in names and scores
-    for line in file:lines() do
+    for line in love.filesystem.lines('breakout.lst') do
         if name then
             scores[counter].name = string.sub(line, 1, 3)
         else
@@ -316,8 +326,6 @@ function loadHighScores()
         -- flip the name flag
         name = not name
     end
-
-    file:close()
 
     return scores
 end

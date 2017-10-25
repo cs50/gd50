@@ -79,18 +79,42 @@ function PlayState:update(dt)
                 gStateMachine:change('victory')
             end
 
-            -- change ball's trajectory based on how we hit the brick
-            if ball.x < brick.x or ball.x + 7 >= brick.x + brick.width then
-                -- we hit from the left, so reverse dx
-                ball.dx = -ball.dx
-            end
+            -- first, reapply inverted velocity to reset our position
+            ball.x = ball.x + -ball.dx * dt
+            ball.y = ball.y + -ball.dy * dt
 
-            if ball.y < brick.y or ball.y + 7 > brick.y + brick.height then
-                ball.dy = -ball.dy
+            -- hit from the left
+            if ball.dx > 0 then
+                -- left edge
+                if ball.x + 2 < brick.x then
+                    ball.dx = -ball.dx
+                -- top edge
+                elseif ball.y + 1 < brick.y then
+                    ball.dy = -ball.dy
+                -- bottom edge
+                else
+                    -- bottom edge
+                    ball.dy = -ball.dy
+                end
+            else
+                -- right edge
+                if ball.x + 6 > brick.x + brick.width then
+                    -- reset ball position
+                    ball.dx = -ball.dx
+                elseif ball.y + 1 < brick.y then
+                    -- top edge
+                    ball.dy = -ball.dy
+                else
+                    -- bottom edge
+                    ball.dy = -ball.dy
+                end
             end
 
             -- slightly scale the y velocity to speed up the game
             ball.dy = ball.dy * 1.02
+
+            -- only collide with one brick per turn
+            break
         end
     end
 

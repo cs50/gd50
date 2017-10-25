@@ -18,7 +18,7 @@ function GameOverState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
         -- see if score is higher than any in the high scores table
         local highScore = false
-        for i = 1, 10 do
+        for i = 10, 1, -1 do
             if score > highScores[i].score then
                 highScoreIndex = i
                 highScore = true
@@ -29,7 +29,7 @@ function GameOverState:update(dt)
             gSounds['high-score']:play() 
             gStateMachine:change('enter-high-score') 
         else 
-            gStateMachine:change('paddle-select') 
+            gStateMachine:change('start') 
         end
     end
 
@@ -44,6 +44,6 @@ function GameOverState:render()
     love.graphics.setFont(mediumFont)
     love.graphics.printf('Final Score: ' .. tostring(score), 0, VIRTUAL_HEIGHT / 2,
         VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Press Enter to restart!', 0, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 4,
+    love.graphics.printf('Press Enter!', 0, VIRTUAL_HEIGHT - VIRTUAL_HEIGHT / 4,
         VIRTUAL_WIDTH, 'center')
 end
