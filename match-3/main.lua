@@ -55,7 +55,9 @@ function love.load()
 
     -- initialize state machine with all state-returning functions
     gStateMachine = StateMachine {
-        ['start'] = function() return StartState() end
+        ['start'] = function() return StartState() end,
+        ['begin-game'] = function() return BeginGameState() end,
+        ['high-scores'] = function() return HighScoresState() end
     }
     gStateMachine:change('start')
 
@@ -82,6 +84,8 @@ end
 
 function love.update(dt)
     gStateMachine:update(dt)
+
+    love.keyboard.keysPressed = {}
 end
 
 function love.draw()

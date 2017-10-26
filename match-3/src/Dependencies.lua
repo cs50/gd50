@@ -22,6 +22,8 @@ require 'src/Util'
 
 -- game states
 require 'src/states/BaseState'
+require 'src/states/BeginGameState'
+require 'src/states/HighScoresState'
 require 'src/states/StartState'
 
 gSounds = {
