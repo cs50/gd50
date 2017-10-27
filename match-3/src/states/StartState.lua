@@ -128,13 +128,8 @@ function StartState:drawMatch3Text(y)
     love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 76, VIRTUAL_HEIGHT / 2 + y - 11, 150, 58, 6)
 
     -- draw MATCH 3 text shadows
-    love.graphics.setColor(34, 32, 52, 255)
     love.graphics.setFont(gFonts['large'])
-    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 0, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 + y + 2, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 + y + 3, VIRTUAL_WIDTH, 'center')
+    self:drawTextShadow('MATCH 3', VIRTUAL_HEIGHT / 2 + y)
 
     -- print MATCH 3 letters in their corresponding current colors
     for i = 1, 6 do
@@ -154,11 +149,7 @@ function StartState:drawOptions(y)
 
     -- draw Start text
     love.graphics.setFont(gFonts['medium'])
-    love.graphics.setColor(34, 32, 52, 255)
-    love.graphics.printf('Start', 2, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 0, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + y + 10, VIRTUAL_WIDTH, 'center')
+    self:drawTextShadow('Start', VIRTUAL_HEIGHT / 2 + y + 8)
     
     if self.currentMenuItem == 1 then
         love.graphics.setColor(99, 155, 255, 255)
@@ -170,11 +161,7 @@ function StartState:drawOptions(y)
 
     -- draw High Scores text
     love.graphics.setFont(gFonts['medium'])
-    love.graphics.setColor(34, 32, 52, 255)
-    love.graphics.printf('High Scores', 2, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + y + 35, VIRTUAL_WIDTH, 'center')
+    self:drawTextShadow('High Scores', VIRTUAL_HEIGHT / 2 + y + 33)
     
     if self.currentMenuItem == 2 then
         love.graphics.setColor(99, 155, 255, 255)
@@ -183,4 +170,16 @@ function StartState:drawOptions(y)
     end
     
     love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + y + 33, VIRTUAL_WIDTH, 'center')
+end
+
+--[[
+    Helper function for drawing just text backgrounds; draws several layers of the same text, in
+    black, over top of one another for a thicker shadow.
+]]
+function StartState:drawTextShadow(text, y)
+    love.graphics.setColor(34, 32, 52, 255)
+    love.graphics.printf(text, 2, y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf(text, 1, y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf(text, 0, y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf(text, 1, y + 2, VIRTUAL_WIDTH, 'center')
 end
