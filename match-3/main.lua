@@ -22,6 +22,9 @@
 
     Credit for music (awesome track):
     http://freemusicarchive.org/music/RoccoW/
+
+    Cool texture generator, used for background:
+    http://cpetry.github.io/TextureGenerator-Online/
 ]]
 
 -- this time, we're keeping all requires and assets in our Dependencies.lua file

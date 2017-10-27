@@ -17,27 +17,12 @@ local positions = {}
 StartState = Class{__includes = BaseState}
 
 function StartState:init()
-    -- glow shader
-    self.glowEffect = moonshine(moonshine.effects.glow)
-    self.glowEffect.min_luma = 0.1
-    self.glowEffect.strength = 0.12
-
-    -- gradient image we'll be using as our background
-    self.backgroundGradient = Gradient {
-        direction = 'vertical',
-        {89, 86, 82},
-        {155, 173, 183}
-    }
-
-    -- gradient image we'll be using for our GUI box
-    self.windowGradient = Gradient {
-        direction = 'horizontal',
-        {69, 40, 60},
-        {89, 86, 82}
-    }
-
     -- currently selected menu item
     self.currentMenuItem = 1
+
+    -- quad we'll use to scroll our background over time
+    self.backgroundX = 0
+    self.backgroundScrollSpeed = 80
 
     -- colors we'll use to change the title text
     self.colors = {
@@ -47,6 +32,16 @@ function StartState:init()
         [4] = {118, 66, 138, 255},
         [5] = {153, 229, 80, 255},
         [6] = {223, 113, 38, 255}
+    }
+
+    -- letters of MATCH 3 and their spacing relative to the center
+    self.letterTable = {
+        {'M', -108},
+        {'A', -64},
+        {'T', -28},
+        {'C', 2},
+        {'H', 40},
+        {'3', 112}
     }
 
     -- generate full table of tiles
@@ -61,6 +56,14 @@ function StartState:update(dt)
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
+
+    -- scroll background
+    self.backgroundX = self.backgroundX - self.backgroundScrollSpeed * dt
+
+    -- if we've scrolled the entire image, reset it to 0
+    if self.backgroundX <= -1024 + VIRTUAL_WIDTH - 4 + 51 then
+        self.backgroundX = 0
+    end 
 
     -- add delta to our timer
     self.colorTimer = self.colorTimer + dt
@@ -79,6 +82,7 @@ function StartState:update(dt)
     -- change menu selection
     if love.keyboard.wasPressed('up') or love.keyboard.wasPressed('down') then
         self.currentMenuItem = self.currentMenuItem == 1 and 2 or 1
+        gSounds['select']:play()
     end
 
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
@@ -92,55 +96,69 @@ end
 
 function StartState:render()
     -- render gradient background
-    DrawInRect(self.backgroundGradient, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+    love.graphics.setShader()
+    love.graphics.draw(gTextures['background'], self.backgroundX, -5)
 
     -- render all tiles and their drop shadows
-    self.glowEffect(function()
-        for y = 1, 8 do
-            for x = 1, 8 do
-                -- render shadow first
-                love.graphics.setColor(0, 0, 0, 255)
-                love.graphics.draw(gTextures['main'], positions[(y - 1) * x + x], 
-                    (x - 1) * 32 + 128 + 3, (y - 1) * 32 + 16 + 3)
-    
-                -- render tile
-                love.graphics.setColor(255, 255, 255, 255)
-                love.graphics.draw(gTextures['main'], positions[(y - 1) * x + x], 
-                    (x - 1) * 32 + 128, (y - 1) * 32 + 16)
-            end
-        end
-    end)
+    for y = 1, 8 do
+        for x = 1, 8 do
+            -- render shadow first
+            love.graphics.setColor(0, 0, 0, 255)
+            love.graphics.draw(gTextures['main'], positions[(y - 1) * x + x], 
+                (x - 1) * 32 + 128 + 3, (y - 1) * 32 + 16 + 3)
 
-    -- draw MATCH 3 text
+            -- render tile
+            love.graphics.setColor(255, 255, 255, 255)
+            love.graphics.draw(gTextures['main'], positions[(y - 1) * x + x], 
+                (x - 1) * 32 + 128, (y - 1) * 32 + 16)
+        end
+    end
+
+    self:drawMatch3Text(-60)
+    self:drawOptions(12)
+end
+
+--[[
+    Draw the centered MATCH-3 text with background rect, placed along the Y
+    axis as needed, relative to the center.
+]]
+function StartState:drawMatch3Text(y)
+    -- draw semi-transparent rect behind MATCH 3
+    love.graphics.setColor(255, 255, 255, 128)
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 76, VIRTUAL_HEIGHT / 2 + y - 11, 150, 58, 6)
+
+    -- draw MATCH 3 text shadows
     love.graphics.setColor(34, 32, 52, 255)
     love.graphics.setFont(gFonts['large'])
-    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 - 31, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('MATCH 3', 0, VIRTUAL_HEIGHT / 2 + y + 1, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('MATCH 3', 1, VIRTUAL_HEIGHT / 2 + y + 2, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('MATCH 3', 2, VIRTUAL_HEIGHT / 2 + y + 3, VIRTUAL_WIDTH, 'center')
 
-    -- print "MATCH 3" in different colors
-    love.graphics.setColor(self.colors[1])
-    love.graphics.printf('M', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH - 108, 'center')
-    love.graphics.setColor(self.colors[2])
-    love.graphics.printf('A', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH - 64, 'center')
-    love.graphics.setColor(self.colors[3])
-    love.graphics.printf('T', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH - 28, 'center')
-    love.graphics.setColor(self.colors[4])
-    love.graphics.printf('C', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH + 2, 'center')
-    love.graphics.setColor(self.colors[5])
-    love.graphics.printf('H', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH + 40, 'center')
-    love.graphics.setColor(self.colors[6])
-    love.graphics.printf('3', 0, VIRTUAL_HEIGHT / 2 - 33, VIRTUAL_WIDTH + 112, 'center')
+    -- print MATCH 3 letters in their corresponding current colors
+    for i = 1, 6 do
+        love.graphics.setColor(self.colors[i])
+        love.graphics.printf(self.letterTable[i][1], 0, VIRTUAL_HEIGHT / 2 + y,
+            VIRTUAL_WIDTH + self.letterTable[i][2], 'center')
+    end
+end
+
+--[[
+    Draws "Start" and "High Scores" text over semi-transparent rectangles.
+]]
+function StartState:drawOptions(y)
+    -- draw rect behind start and high scores text
+    love.graphics.setColor(255, 255, 255, 128)
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 76, VIRTUAL_HEIGHT / 2 + y, 150, 58, 6)
 
     -- draw Start text
-    love.graphics.setColor(34, 32, 52, 255)
     love.graphics.setFont(gFonts['medium'])
-    love.graphics.printf('Start', 2, VIRTUAL_HEIGHT / 2 + 45, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + 45, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 0, VIRTUAL_HEIGHT / 2 + 45, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + 46, VIRTUAL_WIDTH, 'center')
+    love.graphics.setColor(34, 32, 52, 255)
+    love.graphics.printf('Start', 2, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Start', 0, VIRTUAL_HEIGHT / 2 + y + 9, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Start', 1, VIRTUAL_HEIGHT / 2 + y + 10, VIRTUAL_WIDTH, 'center')
     
     if self.currentMenuItem == 1 then
         love.graphics.setColor(99, 155, 255, 255)
@@ -148,15 +166,15 @@ function StartState:render()
         love.graphics.setColor(48, 96, 130, 255)
     end
     
-    love.graphics.printf('Start', 0, VIRTUAL_HEIGHT / 2 + 44, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Start', 0, VIRTUAL_HEIGHT / 2 + y + 8, VIRTUAL_WIDTH, 'center')
 
     -- draw High Scores text
-    love.graphics.setColor(34, 32, 52, 255)
     love.graphics.setFont(gFonts['medium'])
-    love.graphics.printf('High Scores', 2, VIRTUAL_HEIGHT / 2 + 70, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + 70, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + 70, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + 71, VIRTUAL_WIDTH, 'center')
+    love.graphics.setColor(34, 32, 52, 255)
+    love.graphics.printf('High Scores', 2, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + y + 34, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('High Scores', 1, VIRTUAL_HEIGHT / 2 + y + 35, VIRTUAL_WIDTH, 'center')
     
     if self.currentMenuItem == 2 then
         love.graphics.setColor(99, 155, 255, 255)
@@ -164,5 +182,5 @@ function StartState:render()
         love.graphics.setColor(48, 96, 130, 255)
     end
     
-    love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + 69, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('High Scores', 0, VIRTUAL_HEIGHT / 2 + y + 33, VIRTUAL_WIDTH, 'center')
 end

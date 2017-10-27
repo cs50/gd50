@@ -11,12 +11,22 @@
     well as the assets for our game, rather than pollute our main.lua file.
 ]]
 
+--
 -- libraries
-push = require 'lib/push'
+--
 Class = require 'lib/class'
+
+-- shader lib
 moonshine = require 'lib/moonshine'
 
+push = require 'lib/push'
+
+-- used for timers and tweening
+Timer = require 'lib/knife.timer'
+
+--
 -- our own code
+--
 require 'src/StateMachine'
 require 'src/Util'
 
@@ -27,11 +37,13 @@ require 'src/states/HighScoresState'
 require 'src/states/StartState'
 
 gSounds = {
-    ['music'] = love.audio.newSource('sounds/music3.mp3')
+    ['music'] = love.audio.newSource('sounds/music3.mp3'),
+    ['select'] = love.audio.newSource('sounds/select.wav')
 }
 
 gTextures = {
-    ['main'] = love.graphics.newImage('graphics/match3.png')
+    ['main'] = love.graphics.newImage('graphics/match3.png'),
+    ['background'] = love.graphics.newImage('graphics/background.png')
 }
 
 gFrames = {
