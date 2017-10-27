@@ -49,7 +49,14 @@ function StartState:init()
         table.insert(positions, gFrames['tiles'][math.random(18)][math.random(6)])
     end
 
+    -- keeps track of the transitioning of "MATCH 3"'s colors
     self.colorTimer = 0
+
+    -- used to animate our full-screen transition rect
+    self.transitionAlpha = 0
+
+    -- if we've selected an option, we need to pause input while we animate out
+    self.pauseInput = false
 end
 
 function StartState:update(dt)
@@ -79,19 +86,39 @@ function StartState:update(dt)
         end
     end
 
-    -- change menu selection
-    if love.keyboard.wasPressed('up') or love.keyboard.wasPressed('down') then
-        self.currentMenuItem = self.currentMenuItem == 1 and 2 or 1
-        gSounds['select']:play()
-    end
+    -- as long as can still input, i.e., we're not in a transition...
+    if not self.pauseInput then
+        -- change menu selection
+        if love.keyboard.wasPressed('up') or love.keyboard.wasPressed('down') then
+            self.currentMenuItem = self.currentMenuItem == 1 and 2 or 1
+            gSounds['select']:play()
+        end
 
-    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        if self.currentMenuItem == 1 then 
-            gStateMachine:change('begin-game')
-        else
-            gStateMachine:change('high-scores')
+        -- switch to another state via one of the menu options
+        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+            if self.currentMenuItem == 1 then
+                -- tween, using Timer, the transition rect's alpha to 255, then
+                -- transition to the right state after the animation is over
+                Timer.tween(1, {
+                    [self] = {transitionAlpha = 255}
+                }):finish(function()
+                    gStateMachine:change('begin-game')
+                end)
+            else
+                Timer.tween(1, {
+                    [self] = {transitionAlpha = 255}
+                }):finish(function()
+                    gStateMachine:change('high-scores')
+                end)
+            end
+
+            -- turn off input during transition
+            self.pauseInput = true
         end
     end
+
+    -- update our Timer, which will be used for our fade transitions
+    Timer.update(dt)
 end
 
 function StartState:render()
@@ -114,8 +141,16 @@ function StartState:render()
         end
     end
 
+    -- keep the background and tiles a little darker than normal
+    love.graphics.setColor(0, 0, 0, 128)
+    love.graphics.rectangle('fill', 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+
     self:drawMatch3Text(-60)
     self:drawOptions(12)
+
+    -- draw our transition rect; is normally fully transparent, unless we're moving to a new state
+    love.graphics.setColor(255, 255, 255, self.transitionAlpha)
+    love.graphics.rectangle('fill', 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
 end
 
 --[[

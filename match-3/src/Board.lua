@@ -13,8 +13,18 @@
 
 Board = Class{}
 
-function Board:init()
-    tiles = {}
+function Board:init(x, y)
+    self.x = x
+    self.y = y
+
+    self.tiles = {}
+
+    for tileY = 1, 8 do
+        for tileX = 1, 8 do
+            -- create a new tile at X,Y with a random color and variety
+            table.insert(self.tiles, Tile(tileX, tileY, math.random(18), math.random(6)))
+        end
+    end
 end
 
 function Board:calculateMatches()
@@ -26,5 +36,7 @@ function Board:update(dt)
 end
 
 function Board:render()
-
+    for k, tile in pairs(self.tiles) do
+        tile:render(self.x, self.y)
+    end
 end

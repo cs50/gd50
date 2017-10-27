@@ -27,8 +27,14 @@ Timer = require 'lib/knife.timer'
 --
 -- our own code
 --
+
+-- utility
 require 'src/StateMachine'
 require 'src/Util'
+
+-- game pieces
+require 'src/Board'
+require 'src/Tile'
 
 -- game states
 require 'src/states/BaseState'

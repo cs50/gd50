@@ -19,8 +19,8 @@ function Tile:init(x, y, color, variety)
     self.gridY = y
 
     -- coordinate positions
-    self.x = self.gridX * 32
-    self.y = self.gridY * 32
+    self.x = (self.gridX - 1) * 32
+    self.y = (self.gridY - 1) * 32
 
     -- tile appearance/points
     self.color = color
@@ -35,7 +35,7 @@ end
     Function to swap this tile with another tile, tweening the two's positions.
 ]]
 function Tile:swap(tile)
-    
+
 end
 
 function Tile:render(x, y)
