@@ -102,7 +102,9 @@ function StartState:update(dt)
                 Timer.tween(1, {
                     [self] = {transitionAlpha = 255}
                 }):finish(function()
-                    gStateMachine:change('begin-game')
+                    gStateMachine:change('begin-game', {
+                        level = 1
+                    })
                 end)
             else
                 Timer.tween(1, {

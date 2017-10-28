@@ -40,7 +40,11 @@ require 'src/Tile'
 require 'src/states/BaseState'
 require 'src/states/BeginGameState'
 require 'src/states/HighScoresState'
+require 'src/states/PlayState'
 require 'src/states/StartState'
+
+-- management
+require 'src/ScoreManager'
 
 gSounds = {
     ['music'] = love.audio.newSource('sounds/music3.mp3'),
@@ -64,3 +68,6 @@ gFonts = {
     ['medium'] = love.graphics.newFont('fonts/font.ttf', 16),
     ['large'] = love.graphics.newFont('fonts/font.ttf', 32)
 }
+
+-- global score manager to access between states
+gScoreManager = ScoreManager()
