@@ -106,6 +106,8 @@ function PlayState:update(dt)
                 :finish(function()
                     self.canInput = true
                     self.highlightedTile = nil
+
+                    self.board:calculateMatches()
                 end)
             end
         end
