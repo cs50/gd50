@@ -22,7 +22,7 @@ function BeginGameState:init()
     self.board = Board(VIRTUAL_WIDTH - 272, 16)
 
     -- start our level # label off-screen
-    self.levelLabelY = -30
+    self.levelLabelY = -64
 end
 
 function BeginGameState:enter(def)
@@ -72,13 +72,13 @@ function BeginGameState:update(dt)
 end
 
 function BeginGameState:render()
-    -- background color
-    love.graphics.clear(89, 82, 82, 255)
-
     -- render board of tiles
     self.board:render()
 
-    -- render Level # label
+    -- render Level # label and background rect
+    love.graphics.setColor(95, 205, 228, 200)
+    love.graphics.rectangle('fill', 0, self.levelLabelY - 8, VIRTUAL_WIDTH, 48)
+    love.graphics.setColor(255, 255, 255, 255)
     love.graphics.setFont(gFonts['large'])
     love.graphics.printf('Level ' .. tostring(self.level),
         0, self.levelLabelY, VIRTUAL_WIDTH, 'center')

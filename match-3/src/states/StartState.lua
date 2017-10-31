@@ -20,10 +20,6 @@ function StartState:init()
     -- currently selected menu item
     self.currentMenuItem = 1
 
-    -- quad we'll use to scroll our background over time
-    self.backgroundX = 0
-    self.backgroundScrollSpeed = 80
-
     -- colors we'll use to change the title text
     self.colors = {
         [1] = {217, 87, 99, 255},
@@ -62,14 +58,6 @@ end
 function StartState:update(dt)
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
-    end
-
-    -- scroll background
-    self.backgroundX = self.backgroundX - self.backgroundScrollSpeed * dt
-
-    -- if we've scrolled the entire image, reset it to 0
-    if self.backgroundX <= -1024 + VIRTUAL_WIDTH - 4 + 51 then
-        self.backgroundX = 0
     end 
 
     -- add delta to our timer
@@ -124,10 +112,6 @@ function StartState:update(dt)
 end
 
 function StartState:render()
-    -- render gradient background
-    love.graphics.setShader()
-    love.graphics.draw(gTextures['background'], self.backgroundX, -5)
-
     -- render all tiles and their drop shadows
     for y = 1, 8 do
         for x = 1, 8 do

@@ -65,6 +65,10 @@ function love.load()
     }
     gStateMachine:change('start')
 
+    -- keep track of scrolling our background on the X axis
+    backgroundX = 0
+    backgroundScrollSpeed = 80
+
     -- initialize input table
     love.keyboard.keysPressed = {}
 end
@@ -87,6 +91,14 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
+    -- scroll background, used across all states
+    backgroundX = backgroundX - backgroundScrollSpeed * dt
+    
+    -- if we've scrolled the entire image, reset it to 0
+    if backgroundX <= -1024 + VIRTUAL_WIDTH - 4 + 51 then
+        backgroundX = 0
+    end
+
     gStateMachine:update(dt)
 
     love.keyboard.keysPressed = {}
@@ -94,6 +106,7 @@ end
 
 function love.draw()
     push:start()
+    love.graphics.draw(gTextures['background'], backgroundX, 0)
     gStateMachine:render()
     push:finish()
 end
