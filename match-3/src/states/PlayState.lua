@@ -103,11 +103,32 @@ function PlayState:update(dt)
                     [self.highlightedTile] = {x = newTile.x, y = newTile.y},
                     [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
                 })
+                -- once the swap is finished, we can tween falling blocks as needed
                 :finish(function()
-                    self.canInput = true
                     self.highlightedTile = nil
 
-                    self.board:calculateMatches()
+                    -- if we have any matches, remove them and tween the falling blocks that result
+                    if self.board:calculateMatches() then
+                        -- remove any tiles that matched from the board, making empty spaces
+                        self.board:removeMatches()
+
+                        -- gets a table with tween values for tiles that should now fall
+                        local tilesToFall = self.board:getFallingTiles()
+
+                        -- first, tween the falling tiles over 0.25s
+                        Timer.tween(0.25, tilesToFall):finish(function()
+                            local newTiles = self.board:getNewTiles()
+                            
+                            -- then, tween new tiles that spawn from the ceiling over 0.25s to fill in
+                            -- the new upper gaps that exist
+                            Timer.tween(0.25, newTiles):finish(function()
+                                self.canInput = true
+                            end)
+                        end)
+                    -- if no matches, we can continue playing
+                    else
+                        self.canInput = true
+                    end
                 end)
             end
         end
