@@ -36,10 +36,16 @@ function PlayState:init()
     self.highlightedTile = nil
 
     self.score = 0
+    self.timer = 60
 
     -- set our Timer class to turn highlight on cursor on and off
     Timer.every(0.5, function()
         self.rectHighlighted = not self.rectHighlighted
+    end)
+
+    -- subtract 1 from timer every second
+    Timer.every(1, function()
+        self.timer = self.timer - 1
     end)
 end
 
@@ -49,11 +55,30 @@ function PlayState:enter(def)
 
     -- spawn a board and place it toward the right
     self.board = def.board or Board(VIRTUAL_WIDTH - 272, 16)
+
+    -- grab score from def if it was passed
+    self.score = def.score or 0
+
+    -- score we have to reach to get to the next level
+    self.scoreGoal = self.level * 1.25 * 1000
 end
 
 function PlayState:update(dt)
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
+    end
+
+    -- go back to start if time runs out
+    if self.timer <= 0 then
+        gStateMachine:change('start')
+    end
+
+    -- go to next level if we surpass score goal
+    if self.score >= self.scoreGoal then
+        gStateMachine:change('begin-game', {
+            level = self.level + 1,
+            score = self.score
+        })
     end
 
     if self.canInput then
@@ -180,4 +205,6 @@ function PlayState:render()
     love.graphics.setFont(gFonts['medium'])
     love.graphics.print('Level: ' .. tostring(self.level), 24, 24)
     love.graphics.print('Score: ' .. tostring(self.score), 24, 48)
+    love.graphics.print('Goal : ' .. tostring(self.scoreGoal), 24, 72)
+    love.graphics.print('Timer: ' .. tostring(self.timer), 24, 96)
 end
