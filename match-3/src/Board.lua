@@ -212,6 +212,24 @@ function Board:getFallingTiles()
         end
     end
 
+    -- create replacement tiles at the top of the screen
+    for x = 1, 8 do
+        for y = 8, 1, -1 do
+            local tile = self.tiles[(y - 1) * 8 + x]
+
+            -- if the tile is nil, we need to add a new one
+            if not tile then
+                local tile = Tile(x, y, math.random(18), math.random(6))
+                tile.y = -32
+                self.tiles[(y - 1) * 8 + x] = tile
+
+                tweens[tile] = {
+                    y = (tile.gridY - 1) * 32
+                }
+            end
+        end
+    end
+
     return tweens
 end
 
