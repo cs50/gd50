@@ -129,7 +129,7 @@ function Board:calculateMatches()
     self.matches = matches
 
     -- return true so we can determine whether we need to call more code
-    return #self.matches > 0
+    return #self.matches > 0 and self.matches or false
 end
 
 --[[

@@ -35,6 +35,8 @@ function PlayState:init()
     -- tile we're currently highlighting (preparing to swap)
     self.highlightedTile = nil
 
+    self.score = 0
+
     -- set our Timer class to turn highlight on cursor on and off
     Timer.every(0.5, function()
         self.rectHighlighted = not self.rectHighlighted
@@ -108,7 +110,15 @@ function PlayState:update(dt)
                     self.highlightedTile = nil
 
                     -- if we have any matches, remove them and tween the falling blocks that result
-                    if self.board:calculateMatches() then
+                    local matches = self.board:calculateMatches()
+                    
+                    if matches then
+                        
+                        -- add score for each match
+                        for k, match in pairs(matches) do
+                            self.score = self.score + #match * 50
+                        end
+
                         -- remove any tiles that matched from the board, making empty spaces
                         self.board:removeMatches()
 
@@ -169,4 +179,5 @@ function PlayState:render()
     love.graphics.setColor(99, 155, 255, 255)
     love.graphics.setFont(gFonts['medium'])
     love.graphics.print('Level: ' .. tostring(self.level), 24, 24)
+    love.graphics.print('Score: ' .. tostring(self.score), 24, 48)
 end
